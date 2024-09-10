@@ -1,0 +1,13 @@
+---
+title: "730_HW1"
+author: "Luke Wilsen"
+date: "2024-09-10"
+output: pdf_document
+---
+
+```{r}
+library(tidyverse)
+library(rstudioapi)
+setwd(dirname(getActiveDocumentContext()$path))
+```
+

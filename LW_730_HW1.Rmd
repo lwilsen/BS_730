@@ -4,10 +4,146 @@ author: "Luke Wilsen"
 date: "2024-09-10"
 output: pdf_document
 ---
+# Exercise 2a
 
+### Importing Data and Libraries
 ```{r}
 library(tidyverse)
 library(rstudioapi)
 setwd(dirname(getActiveDocumentContext()$path))
 ```
+
+```{r}
+radon <- read.csv("./BayesCode/data/radon.csv")
+```
+
+### Data Exploration
+```{r}
+radon %>% 
+  mutate(log_radon = log(activity)) %>% 
+  ggplot()+
+  geom_histogram(aes(x = log_radon, y = ..density..), bins = 30)+  
+  theme_classic() + 
+  theme(text = element_text(size = 20)) 
+```
+### PRIOR param Definition
+```{r}
+### Defining PRIOR parameters ###
+mu0 <- 0
+sigma_mu0 <- 0.1
+```
+
+### DATA param Definition
+```{r}
+### Defining information FROM THE DATA
+y <- log(radon$activity)
+sigma <- sd(y)
+ybar <- mean(y)
+n <- length(y)
+sd_ybar <- sigma/sqrt(n) # Definition of standard error of the mean
+```
+
+### POSTERIOR param definition
+```{r}
+post_mean <- (mu0/(sigma_mu0^2) + n * ybar/(sigma^2)) / (1 / (sigma_mu0^2) + n / (sigma^2))
+post_sd <- sqrt(1 / (1 / (sigma_mu0^2) + n / (sigma^2)))
+```
+
+### Dist Definition
+```{r}
+prior_dist <- function(x) dnorm(x, mu0, sigma_mu0) #based on prior assumptions
+likelihood <- function(x) dnorm(x, ybar, sd_ybar) #based on observed data
+post_dist <- function(x) dnorm(x, post_mean, post_sd) #based on both above distributions
+```
+
+### Plot dists
+```{r}
+ggplot(NULL, aes(c(-2,2)))+
+  geom_line(stat = "function", fun = prior_dist, color = "blue", linetype = "dotdash", linewidth = 1.3)+
+  geom_line(stat = "function", fun = likelihood, color = "darkgreen", linetype = "dashed", linewidth = 1.3)+
+  geom_line(stat = "function", fun = post_dist, color = "darkred", linetype = "longdash", linewidth = 1.3)+
+  ylab("Density") +
+  xlab(expression(mu)) +
+  theme(
+    legend.position = "top",
+    legend.title = element_blank(),
+    text = element_text(size = 20)
+  )
+```
+
+### Credible Intervals
+```{r}
+# point estimate: mean
+print(post_mean)
+
+# point estimate: median
+qnorm(0.5, mean = post_mean, sd = post_sd)
+
+# 95% credible interval
+qnorm(c(0.025, 0.975), mean = post_mean, sd = post_sd)
+
+# 80% credible interval
+qnorm(c(0.1, 0.9), mean = post_mean, sd = post_sd)
+```
+
+Interpretation of 80% credible interval:
+- The probability that the true mean, $\mu$ is contained in the interval [1.101, 1.171] is 0.8.
+
+# Exercise 2b
+
+### New definitions
+```{r}
+n2 <- 4635
+sd_ybar2 <- sigma/sqrt(n2) # Definition of standard error of the mean
+```
+
+### POSTERIOR param definition
+```{r}
+post_mean2 <- (mu0/(sigma_mu0^2) + n2 * ybar/(sigma^2)) / (1 / (sigma_mu0^2) + n2 / (sigma^2))
+post_sd2 <- sqrt(1 / (1 / (sigma_mu0^2) + n2 / (sigma^2)))
+```
+
+```{r}
+likelihood2 <- function(x) dnorm(x, ybar, sd_ybar2) #based on observed data
+post_dist2 <- function(x) dnorm(x, post_mean2, post_sd2) #based on both above distributions
+```
+
+### Plot dists
+```{r}
+ggplot(NULL, aes(c(-2,2)))+
+  geom_line(stat = "function", fun = prior_dist, color = "blue", linetype = "dotdash", linewidth = 1.3)+
+  geom_line(stat = "function", fun = likelihood2, color = "darkgreen", linetype = "solid", linewidth = 1.3)+
+  geom_line(stat = "function", fun = post_dist2, color = "darkred", linetype = "longdash", linewidth = 1.3)+
+  ylab("Density") +
+  xlab(expression(mu)) +
+  theme(
+    legend.position = "top",
+    legend.title = element_blank(),
+    text = element_text(size = 20)
+  )
+```
+
+### Credible Intervals
+```{r}
+# point estimate: mean
+print(post_mean2)
+
+# point estimate: median
+qnorm(0.5, mean = post_mean2, sd = post_sd2)
+
+# 95% credible interval
+qnorm(c(0.025, 0.975), mean = post_mean2, sd = post_sd2)
+
+# 80% credible interval
+qnorm(c(0.1, 0.9), mean = post_mean2, sd = post_sd2)
+```
+
+# Exercise 2c
+
+Clearly the second posterior is more data driven, because it takes into account more observations, which means that the standard error of the likelihood function is much smaller, and that the mean is more likely to be representative of the true population mean.
+- Not sure about that last part.
+This is what I expected however, because it is natural to think that the more
+
+
+
 

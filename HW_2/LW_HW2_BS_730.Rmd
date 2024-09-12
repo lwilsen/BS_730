@@ -1,0 +1,21 @@
+---
+title: "BS_730_HW2"
+author: "Luke Wilsen"
+date: "2024-09-12"
+output: pdf_document
+---
+
+## Exercise 2
+### III
+```{r}
+m0 <- 100
+sigma <- 15
+ybar <- 113
+n <- 10
+
+mubayes <- (m0 / sigma^2 + n*ybar / sigma^2) / (1/sigma^2 + n / sigma^2)
+
+# Why is the variance used a big consideration in this specific scenario?
+credint_95 <- qnorm(c(0.025,0.975), mubayes, sigma)
+```
+
